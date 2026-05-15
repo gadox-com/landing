@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GadoX — Controle de Rebanho</title>
+<meta name="description" content="Sistema de gestão de gado para fazendas modernas. Controle seu rebanho com tecnologia simples e eficiente.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #58C734;
+    --green-dark: #1E5A09;
+    --green-mid: #2d7a10;
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --gray: #6b7280;
+    --gray-light: #f4f5f2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* ── NAVBAR ──────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: all 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    padding: 14px 48px;
+  }
+  .nav-logo {
+    font-family: 'Inter', sans-serif;
+    font-size: 24px; font-weight: 800;
+    color: var(--white); text-decoration: none;
+    letter-spacing: -0.5px;
+  }
+  nav.scrolled .nav-logo { color: var(--black); }
+  .nav-logo span { color: var(--green); }
+  .nav-links { display: flex; align-items: center; gap: 32px; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500;
+    color: rgba(255,255,255,0.85); text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav.scrolled .nav-links a { color: var(--gray); }
+  .nav-links a:hover { color: var(--green); }
+  .nav-cta {
+    background: var(--green) !important;
+    color: var(--green-dark) !important;
+    padding: 10px 22px; border-radius: 8px;
+    font-weight: 600 !important; font-size: 13px !important;
+    transition: all 0.2s !important;
+  }
+  .nav-cta:hover { background: #45a827 !important; transform: translateY(-1px); }
+
+  /* ── HERO ─────────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1E5A09 0%, #2d8010 50%, #58C734 100%);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .hero-bg svg { width: 100%; height: 100%; }
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 1200px; margin: 0 auto; padding: 120px 48px 80px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.9);
+    letter-spacing: 0.5px; text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero-tag span { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+  h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(42px, 5vw, 68px);
+    font-weight: 800; line-height: 1.05;
+    color: var(--white); letter-spacing: -1px;
+    margin-bottom: 24px;
+  }
+  h1 em { font-style: normal; color: #a8f075; }
+  .hero-sub {
+    font-size: 17px; color: rgba(255,255,255,0.75);
+    line-height: 1.7; margin-bottom: 40px; font-weight: 300;
+  }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--white); color: var(--green-dark);
+    padding: 15px 32px; border-radius: 10px;
+    font-size: 15px; font-weight: 700;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.15); }
+  .btn-ghost {
+    border: 1.5px solid rgba(255,255,255,0.4); color: var(--white);
+    padding: 15px 32px; border-radius: 10px;
+    font-size: 15px; font-weight: 600;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+  .hero-stats {
+    display: flex; gap: 32px; margin-top: 48px; padding-top: 48px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+  }
+  .stat-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 32px; font-weight: 800; color: var(--white); letter-spacing: -1px;
+  }
+  .stat-num span { color: #a8f075; }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; font-weight: 500; }
+
+  /* Hero mockup */
+  .hero-mockup {
+    background: white; border-radius: 20px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  .mockup-bar {
+    background: #f4f5f2; padding: 12px 16px;
+    display: flex; align-items: center; gap: 6px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .mockup-content { padding: 20px; }
+  .mockup-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .mockup-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; color: #111; }
+  .mockup-badge { background: #dcf5d8; color: #1E5A09; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+  .mockup-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .mcard { padding: 12px; border-radius: 10px; }
+  .mcard.green { background: linear-gradient(135deg, #58C734, #45a827); }
+  .mcard.white { background: #f8f9fa; border: 1px solid #f0f0f0; }
+  .mcard-num { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; }
+  .mcard.green .mcard-num { color: white; }
+  .mcard.white .mcard-num { color: #111; }
+  .mcard-label { font-size: 10px; margin-top: 2px; }
+  .mcard.green .mcard-label { color: rgba(255,255,255,0.8); }
+  .mcard.white .mcard-label { color: #9ca3af; }
+  .mockup-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 6px; }
+  .mockup-brinco { font-family: monospace; font-size: 11px; font-weight: 700; color: #58C734; background: #dcf5d8; padding: 2px 6px; border-radius: 4px; }
+  .mockup-info { font-size: 11px; color: #6b7280; flex: 1; }
+  .mockup-dot { width: 6px; height: 6px; border-radius: 50%; background: #58C734; }
+
+  /* ── SECTION ──────────────────────────────────── */
+  section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+  .section-tag {
+    font-size: 11px; font-weight: 700; color: var(--green);
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;
+  }
+  h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800; letter-spacing: -1px; line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .section-sub { font-size: 17px; color: var(--gray); line-height: 1.7; max-width: 560px; }
+
+  /* ── FUNCIONALIDADES ──────────────────────────── */
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 64px; border-radius: 20px; overflow: hidden; }
+  .feature {
+    background: var(--gray-light); padding: 40px 36px;
+    transition: background 0.2s;
+  }
+  .feature:hover { background: #eef5eb; }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--green-dark); display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; font-size: 22px;
+  }
+  .feature h3 {
+    font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700;
+    letter-spacing: -0.3px; margin-bottom: 10px;
+  }
+  .feature p { font-size: 14px; color: var(--gray); line-height: 1.6; }
+
+  /* ── COMO FUNCIONA ───────────────────────────── */
+  .how-section { background: var(--black); padding: 100px 48px; }
+  .how-inner { max-width: 1200px; margin: 0 auto; }
+  .how-section h2 { color: var(--white); }
+  .how-section .section-tag { color: var(--green); }
+  .how-section .section-sub { color: rgba(255,255,255,0.5); }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-top: 64px; }
+  .step { text-align: center; }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    border: 2px solid var(--green); color: var(--green);
+    font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .step h3 { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+  .step p { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+
+  /* ── PLANOS ──────────────────────────────────── */
+  .plans-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 64px; }
+  .plan {
+    border: 1.5px solid #e5e7eb; border-radius: 16px;
+    padding: 32px 28px; position: relative;
+    transition: all 0.2s;
+  }
+  .plan:hover { border-color: var(--green); transform: translateY(-4px); }
+  .plan.featured {
+    border-color: var(--green); background: var(--green-dark);
+  }
+  .plan-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--green); color: var(--green-dark);
+    font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 20px;
+    white-space: nowrap;
+  }
+  .plan-name { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; color: var(--gray); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .plan.featured .plan-name { color: rgba(255,255,255,0.6); }
+  .plan-price { font-family: 'Inter', sans-serif; font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+  .plan-price sup { font-size: 18px; letter-spacing: 0; vertical-align: top; margin-top: 8px; }
+  .plan-price sub { font-size: 14px; letter-spacing: 0; font-weight: 500; }
+  .plan.featured .plan-price { color: var(--white); }
+  .plan-animals { font-size: 13px; color: var(--gray); margin-bottom: 24px; }
+  .plan.featured .plan-animals { color: rgba(255,255,255,0.5); }
+  .plan-features { list-style: none; margin-bottom: 32px; }
+  .plan-features li {
+    font-size: 13px; color: #374151; padding: 6px 0;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .plan.featured .plan-features li { color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.1); }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .plan-btn {
+    display: block; width: 100%; padding: 13px;
+    border-radius: 10px; text-align: center;
+    font-size: 14px; font-weight: 700; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .plan-btn.outline { border: 1.5px solid #e5e7eb; color: var(--black); }
+  .plan-btn.outline:hover { border-color: var(--green); color: var(--green); }
+  .plan-btn.solid { background: var(--green); color: var(--green-dark); }
+  .plan-btn.solid:hover { background: #45a827; }
+
+  /* ── CTA ─────────────────────────────────────── */
+  .cta-section {
+    background: linear-gradient(135deg, #1E5A09 0%, #58C734 100%);
+    padding: 100px 48px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-section h2 { color: var(--white); }
+  .cta-section p { color: rgba(255,255,255,0.75); font-size: 17px; margin: 16px auto 40px; max-width: 500px; }
+  .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── FOOTER ──────────────────────────────────── */
+  footer {
+    background: var(--black); padding: 60px 48px 32px;
+  }
+  .footer-inner { max-width: 1200px; margin: 0 auto; }
+  .footer-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 48px; }
+  .footer-logo { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; color: var(--white); }
+  .footer-logo span { color: var(--green); }
+  .footer-tagline { font-size: 13px; color: rgba(255,255,255,0.3); margin-top: 6px; }
+  .footer-links { display: flex; gap: 48px; }
+  .footer-col h4 { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+  .footer-col a { display: block; font-size: 14px; color: rgba(255,255,255,0.6); text-decoration: none; margin-bottom: 10px; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--green); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .footer-bottom p { font-size: 13px; color: rgba(255,255,255,0.2); }
+
+  /* ── ANIMAÇÕES ───────────────────────────────── */
+  .fade-up { opacity: 0; transform: translateY(32px); transition: all 0.7s cubic-bezier(0.16,1,0.3,1); }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── MOBILE ──────────────────────────────────── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    nav.scrolled { padding: 12px 24px; }
+    .nav-links { display: none; }
+    .hero-content { grid-template-columns: 1fr; padding: 100px 24px 60px; gap: 48px; }
+    .hero-mockup { display: none; }
+    .hero-stats { gap: 20px; }
+    section { padding: 64px 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .plans-grid { grid-template-columns: 1fr; }
+    .footer-top { flex-direction: column; gap: 32px; }
+    .footer-links { flex-direction: column; gap: 24px; }
+    .how-section { padding: 64px 24px; }
+    .cta-section { padding: 64px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Gado<span>X</span></a>
+  <div class="nav-links">
+    <a href="#funcionalidades">Funcionalidades</a>
+    <a href="#planos">Planos</a>
+    <a href="#contato">Contato</a>
+    <a href="https://app.gadox.com.br" class="nav-cta">Acessar sistema →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="1200" cy="100" r="400" fill="rgba(255,255,255,0.04)"/>
+      <circle cx="1300" cy="200" r="250" fill="rgba(255,255,255,0.04)"/>
+      <circle cx="100" cy="750" r="300" fill="rgba(0,0,0,0.1)"/>
+      <line x1="0" y1="120" x2="1440" y2="120" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="0" y1="240" x2="1440" y2="240" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="0" y1="360" x2="1440" y2="360" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="0" y1="480" x2="1440" y2="480" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="0" y1="600" x2="1440" y2="600" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <line x1="0" y1="720" x2="1440" y2="720" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    </svg>
+  </div>
+  <div class="hero-content">
+    <div>
+      <div class="hero-tag"><span></span> Sistema de Gestão de Gado</div>
+      <h1>Seu rebanho sob <em>controle total</em></h1>
+      <p class="hero-sub">Do brinco à venda, cada animal registrado, acompanhado e gerenciado. Tecnologia simples para fazendas que querem resultados.</p>
+      <div class="hero-btns">
+        <a href="https://app.gadox.com.br" class="btn-primary">Começar agora →</a>
+        <a href="#planos" class="btn-ghost">Ver planos</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">100<span>%</span></div>
+          <div class="stat-label">Dados seguros na nuvem</div>
+        </div>
+        <div>
+          <div class="stat-num">15<span>d</span></div>
+          <div class="stat-label">Teste grátis</div>
+        </div>
+        <div>
+          <div class="stat-num">24<span>h</span></div>
+          <div class="stat-label">Suporte disponível</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mockup do sistema -->
+    <div class="hero-mockup">
+      <div class="mockup-bar">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#ffbd2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+      </div>
+      <div class="mockup-content">
+        <div class="mockup-header">
+          <div class="mockup-title">Dashboard — GadoX</div>
+          <div class="mockup-badge">● Ativo</div>
+        </div>
+        <div class="mockup-cards">
+          <div class="mcard green">
+            <div class="mcard-num">929</div>
+            <div class="mcard-label">Animais Ativos</div>
+          </div>
+          <div class="mcard white">
+            <div class="mcard-num">2993</div>
+            <div class="mcard-label">Total do Rebanho</div>
+          </div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Últimas alterações</div>
+        <div class="mockup-row">
+          <div class="mockup-brinco">#3028</div>
+          <div class="mockup-info">Nelore · Bezerra · Sarandi</div>
+          <div class="mockup-dot"></div>
+        </div>
+        <div class="mockup-row">
+          <div class="mockup-brinco">#1240</div>
+          <div class="mockup-info">Angus · Vaca · Casa</div>
+          <div class="mockup-dot"></div>
+        </div>
+        <div class="mockup-row">
+          <div class="mockup-brinco">#872</div>
+          <div class="mockup-info">Tabapuã · Novilho · Capanema</div>
+          <div class="mockup-dot" style="background:#9ca3af"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FUNCIONALIDADES -->
+<section id="funcionalidades">
+  <div class="section-tag fade-up">Funcionalidades</div>
+  <h2 class="fade-up">Tudo que sua fazenda<br>precisa em um lugar</h2>
+  <p class="section-sub fade-up">Desenvolvido para o dia a dia do pecuarista. Simples de usar, poderoso nos resultados.</p>
+  <div class="features-grid fade-up">
+    <div class="feature">
+      <div class="feature-icon">🏷️</div>
+      <h3>Controle por Brinco</h3>
+      <p>Cadastre cada animal com raça, categoria, localização e histórico completo. Busca instantânea por número do brinco.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚖️</div>
+      <h3>Histórico de Pesagens</h3>
+      <p>Registre pesagens e acompanhe o ganho de peso ao longo do tempo. Saiba quais animais estão performando melhor.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🐄</div>
+      <h3>Genealogia e Matrizes</h3>
+      <p>Vincula filhos às matrizes automaticamente. Veja todos os filhos de uma vaca em um clique, com status de cada um.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📍</div>
+      <h3>Controle por Fazenda</h3>
+      <p>Gerencie animais em múltiplas propriedades. Filtre por local, categoria e status com facilidade.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💉</div>
+      <h3>Observações e Saúde</h3>
+      <p>Registre vacinações, tratamentos e observações com data e hora. Histórico completo de cada animal.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <h3>Relatórios em PDF</h3>
+      <p>Exporte relatórios completos do rebanho em PDF ou CSV. Ideal para negociação, banco e planejamento.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<div class="how-section">
+  <div class="how-inner">
+    <div class="section-tag fade-up">Como funciona</div>
+    <h2 class="fade-up">Do contrato ao<br>primeiro acesso</h2>
+    <p class="section-sub fade-up">Sem complicação. Você entra em contato, a gente configura tudo e em minutos sua fazenda está no sistema.</p>
+    <div class="steps fade-up">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Fale conosco</h3>
+        <p>Entre em contato pelo WhatsApp. Apresentamos o sistema e escolhemos o plano ideal para o tamanho do seu rebanho.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Configuramos tudo</h3>
+        <p>Criamos sua fazenda no sistema, seus usuários e fazemos a importação dos dados se necessário.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Você recebe o acesso</h3>
+        <p>Login pronto, dados configurados. Acesse de qualquer dispositivo — computador, tablet ou celular.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Use e cresça</h3>
+        <p>Comece a registrar, acompanhar e tomar decisões com dados reais do seu rebanho.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLANOS -->
+<section id="planos">
+  <div class="section-tag fade-up">Planos</div>
+  <h2 class="fade-up">Simples como deve ser</h2>
+  <p class="section-sub fade-up">Escolha pelo tamanho do rebanho. Todos os planos incluem todas as funcionalidades.</p>
+  <div class="plans-grid fade-up">
+    <div class="plan">
+      <div class="plan-name">GadoX 100</div>
+      <div class="plan-price"><sup>R$</sup>49<sub>/mês</sub></div>
+      <div class="plan-animals">Até 100 animais · 2 usuários</div>
+      <ul class="plan-features">
+        <li>Cadastro completo de animais</li>
+        <li>Histórico de pesagens</li>
+        <li>Controle por fazenda</li>
+        <li>Exportação PDF e CSV</li>
+        <li>Suporte por WhatsApp</li>
+      </ul>
+      <a href="#contato" class="plan-btn outline">Começar →</a>
+    </div>
+    <div class="plan featured">
+      <div class="plan-badge">Mais popular</div>
+      <div class="plan-name">GadoX 500</div>
+      <div class="plan-price"><sup>R$</sup>99<sub>/mês</sub></div>
+      <div class="plan-animals">Até 500 animais · 5 usuários</div>
+      <ul class="plan-features">
+        <li>Tudo do plano 100</li>
+        <li>Genealogia e matrizes</li>
+        <li>Controle de reprodução</li>
+        <li>Histórico de atividades</li>
+        <li>Suporte prioritário</li>
+      </ul>
+      <a href="#contato" class="plan-btn solid">Começar →</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">GadoX 1000</div>
+      <div class="plan-price"><sup>R$</sup>179<sub>/mês</sub></div>
+      <div class="plan-animals">Até 1.000 animais · 10 usuários</div>
+      <ul class="plan-features">
+        <li>Tudo do plano 500</li>
+        <li>Múltiplas fazendas</li>
+        <li>Usuários visualizadores</li>
+        <li>Relatórios avançados</li>
+        <li>Suporte prioritário</li>
+      </ul>
+      <a href="#contato" class="plan-btn outline">Começar →</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">GadoX Pro</div>
+      <div class="plan-price"><sup>R$</sup>299<sub>/mês</sub></div>
+      <div class="plan-animals">Ilimitado · Usuários ilimitados</div>
+      <ul class="plan-features">
+        <li>Tudo do plano 1000</li>
+        <li>Animais ilimitados</li>
+        <li>API de integração</li>
+        <li>Onboarding dedicado</li>
+        <li>SLA garantido</li>
+      </ul>
+      <a href="#contato" class="plan-btn outline">Falar com vendas →</a>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:32px;font-size:13px;color:#9ca3af;">Todos os planos incluem 15 dias grátis · Sem cartão de crédito</p>
+</section>
+
+<!-- CTA -->
+<div class="cta-section" id="contato">
+  <div class="hero-bg">
+    <svg viewBox="0 0 1440 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="50" r="300" fill="rgba(255,255,255,0.05)"/>
+      <circle cx="1300" cy="350" r="250" fill="rgba(0,0,0,0.08)"/>
+    </svg>
+  </div>
+  <div style="position:relative;z-index:2;">
+    <div class="section-tag" style="color:rgba(255,255,255,0.6);">Pronto para começar?</div>
+    <h2>Fale com a gente<br>pelo WhatsApp</h2>
+    <p>Sem burocracia. Você descreve sua fazenda, a gente configura tudo e te entrega o acesso em minutos.</p>
+    <div class="cta-btns">
+      <a href="https://wa.me/5500000000000?text=Olá! Tenho interesse no GadoX para minha fazenda." class="btn-primary">💬 Falar no WhatsApp</a>
+      <a href="https://app.gadox.com.br" class="btn-ghost">Acessar o sistema</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Gado<span>X</span></div>
+        <div class="footer-tagline">Controle de Rebanho para Fazendas Modernas</div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Sistema</h4>
+          <a href="https://app.gadox.com.br">Acessar</a>
+          <a href="#funcionalidades">Funcionalidades</a>
+          <a href="#planos">Planos</a>
+        </div>
+        <div class="footer-col">
+          <h4>Contato</h4>
+          <a href="https://wa.me/5500000000000">WhatsApp</a>
+          <a href="mailto:contato@gadox.com.br">E-mail</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 GadoX · Todos os direitos reservados</p>
+      <p>gadox.com.br</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav')
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40)
+  })
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') })
+  }, { threshold: 0.1 })
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el))
+</script>
+</body>
+</html>
